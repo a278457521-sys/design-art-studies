@@ -2,6 +2,8 @@
 
 设计艺术学研究方法交互背诵网站，仓库为 [design-art-studies](https://github.com/a278457521-sys/design-art-studies)。
 
+[手机／电脑在线访问](https://a278457521-sys.github.io/design-art-studies/)
+
 ## 使用
 
 - 七段主线、十二个专题、69 个分组和 254 条细分背诵点。
