@@ -2,6 +2,27 @@
 .topbar{position:sticky;top:0}
 .detail-panel{position:sticky;top:108px;height:calc(100dvh - 108px);min-height:0;overflow-anchor:none;overscroll-behavior:contain;scroll-behavior:auto}
 .mobile-panel-backdrop,.mobile-panel-bar{display:none}
+.micro-badge{display:inline-block;color:#94c6e6;background:#203441;border:1px solid #36546a;border-radius:20px;font-size:10px;padding:4px 9px;margin-bottom:9px}
+.micro-route{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:10px;color:#889cab}
+.micro-route b{font-weight:550;background:#252d33;color:#c7dce9;border-radius:5px;padding:5px 7px;line-height:1.4}
+.micro-hook{display:flex;flex-direction:column;gap:7px;padding:14px 12px;border-left:3px solid #81badc;background:#202c35;border-radius:0 9px 9px 0;margin:14px 0}
+.micro-hook span{font-size:10px;color:#92c6e6}.micro-hook strong{font-size:14px;line-height:1.7;color:#e6f1f8}
+.micro-hook small,.study-guide-summary small,.micro-example small{font-size:10px;line-height:1.7;color:#879eae}
+.round-buttons{display:flex;gap:6px}.round-buttons button{flex:1;min-width:0;min-height:42px;border:1px solid #415261;background:#232b33;color:#aac2d4;border-radius:7px;padding:8px 4px;font-size:11px;cursor:pointer}
+.round-buttons button[aria-pressed=true]{background:#365b73;color:#fff;border-color:#7ba8c5}
+.round-content{font-size:11px;line-height:1.85;color:#b4c8d6;background:#20262c;border-radius:8px;padding:10px 11px;margin:8px 0 0}
+.micro-rounds{margin-top:18px}.micro-rounds h3{color:#a8cfe6}
+.micro-trap,.micro-example{border:1px solid #594c37;background:#2c2821;border-radius:10px;padding:13px 12px;margin-top:14px}
+.micro-trap h3{color:#e2c38e}.micro-trap p,.micro-example p{font-size:12px;line-height:1.9;margin:0;color:#c9bdab}
+.micro-example{background:#222d28;border-color:#3c574b}.micro-example h3{color:#a7cbb7}.micro-example p{color:#b6c9bf}
+.micro-quizzes{margin-top:18px}.micro-quizzes h3{color:#a8cfe6}.micro-quizzes details{border:1px solid #374653;border-radius:9px;margin:8px 0;overflow:hidden;background:#202830}
+.micro-quizzes summary{cursor:pointer;list-style:none;display:flex;gap:8px;padding:12px 10px;font-size:11px;line-height:1.8;color:#cadce9}
+.micro-quizzes summary::after{content:'＋';flex-shrink:0;margin-left:auto;color:#92bcd6}.micro-quizzes details[open] summary::after{content:'−'}
+.micro-quizzes summary::-webkit-details-marker{display:none}.micro-quizzes summary span{color:#85b6d3}
+.micro-quizzes details p{margin:0;border-top:1px solid #374653;padding:11px;font-size:12px;line-height:1.9;color:#b4c8d5}
+.micro-source{font-size:10px;line-height:1.8;color:#8698a5;margin:18px 0}
+.study-guide-summary small{display:block;margin-top:9px}
+.round-buttons button:focus-visible,.micro-quizzes summary:focus-visible{outline:2px solid #9fd4f3;outline-offset:2px}
 .is-fullscreen .has-study-guide .map-column{right:390px}
 .is-fullscreen .has-study-guide .detail-panel{position:fixed;inset:0 0 0 auto;width:390px;height:100dvh;min-height:0;z-index:9}
 
@@ -56,5 +77,10 @@
   .study-guide-card strong{font-size:13px}
   .study-guide-card p,.study-guide-lead p,.study-guide-summary p{font-size:13px}
   .study-guide-recall p{font-size:12px}
+  .micro-route{font-size:11px}.micro-route b{padding:6px 8px}
+  .round-buttons button{font-size:12px;min-height:44px}
+  .round-content,.micro-quizzes summary{font-size:12px}
+  .micro-quizzes summary{min-height:44px;padding:13px 11px}
+  .micro-trap p,.micro-example p,.micro-quizzes details p{font-size:13px}
   .is-fullscreen .has-study-guide .map-column{right:0}
 }

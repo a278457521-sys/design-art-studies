@@ -4,6 +4,7 @@ import { branches, topics, topicById, VAULT_NAME, CORE_NOTE, REVIEW_NOTE, EXAM_N
 import { detailGroupsById, totalDetailPoints } from "./details.js";
 import { getFocusGroups, buildFocusLayout } from "./focusMap.js";
 import { getStudyGuide } from "./studyGuides.js";
+import { totalMicroPoints } from "./pointCards.js";
 
 const PALETTES = {
   "原稿配色": ["#2B7AA6", "#3B817A", "#9A7131", "#87619D", "#4F719F", "#A26169", "#4E8C74"],
@@ -79,14 +80,20 @@ function toMarkmap() {
       out.push(`  - ${escape(topic.keywords.join(" · "))}`);
       out.push(`  - 回忆路线：${escape(topic.route)}`);
       out.push(`  - 答题提醒：${escape(topic.tip)}`);
-      detailGroupsById[topic.id].forEach((group) => {
+      detailGroupsById[topic.id].forEach((group, groupIndex) => {
         out.push(`  - **${escape(group.title)}**（${escape(group.cue)}）`);
-        group.bullets.forEach((bullet) => out.push(`    - ${escape(bullet)}`));
+        const focusGroup = getFocusGroups(topic.id)[groupIndex];
+        group.bullets.forEach((bullet, itemIndex) => {
+          const guide = getStudyGuide(focusGroup, focusGroup.items[itemIndex].id);
+          out.push(`    - ${escape(bullet)}`, `      - 记忆抓手：${escape(guide.hook)}`);
+          guide.cards.forEach((card) => out.push(`      - ${escape(card.title)}：${escape(card.text)}`));
+          out.push(`      - 易错提醒：${escape(guide.trap)}`);
+        });
       });
     });
     out.push("");
   });
-  out.push("## 资料来源", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
+  out.push("## 资料来源", "- 学习整理说明：保留的资料原句之外，细分解释、记忆抓手和易错提醒为学习整理，非课件逐字引文；口诀需还原成完整解释。", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
   return out.join("\n");
 }
 
@@ -100,18 +107,33 @@ function readProgress() {
 }
 
 function StudyGuide({ guide }) {
+  const [round, setRound] = useState(0);
   const number = (index) => ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"][index - 1] || index;
   return <section className="study-guide" aria-label="当前小标题背诵方法" aria-live="polite">
-    <header className="study-guide-header"><h2>{guide.title}</h2><p>{guide.route}</p></header>
+    <header className="study-guide-header">
+      {guide.kind === "point" && <span className="micro-badge">小点专属 · {guide.cards.length} 个细分点</span>}
+      <h2>{guide.title}</h2>
+      {guide.kind === "point" ? <div className="micro-route" aria-label="细分背诵路线">{guide.cards.map((card, index) => <React.Fragment key={card.title}>{index > 0 && <span aria-hidden="true">→</span>}<b>{card.title}</b></React.Fragment>)}</div> : <p>{guide.route}</p>}
+    </header>
+    {guide.hook && <div className="micro-hook"><span>记忆抓手</span><strong>{guide.hook}</strong><small>口诀仅辅助记忆，作答要还原为完整解释。</small></div>}
     <div className="study-guide-lead"><h3>① {guide.leadLabel}</h3><p>{guide.lead}</p></div>
     <div className="study-guide-arrow" aria-hidden="true">↓</div>
     <div className="study-guide-grid">{guide.cards.map((card, index) => <article className={`study-guide-card ${card.selected ? "selected" : ""}`} key={card.title}>
       <h3>{number(index + 2)} {card.title}{card.selected && <span>当前小点</span>}</h3>
       {card.cue && <strong>{card.cue}</strong>}<p>{card.text}</p>
     </article>)}</div>
+    {guide.rounds && <div className="micro-rounds">
+      <h3>三轮背法 · 按自己的熟练程度切换</h3>
+      <div className="round-buttons" role="group" aria-label="选择背诵轮次">{guide.rounds.map((entry, index) => <button key={entry.title} aria-label={entry.title} aria-pressed={round === index} onClick={() => setRound(index)}>{["① 记骨架", "② 讲清楚", "③ 连成句"][index]}</button>)}</div>
+      <p className="round-content">{guide.rounds[round].text}</p>
+    </div>}
     <div className="study-guide-arrow" aria-hidden="true">↓</div>
-    <div className="study-guide-summary"><h3>{number(guide.cards.length + 2)} 总结</h3><p>{guide.summary}</p></div>
+    <div className="study-guide-summary"><h3>{number(guide.cards.length + 2)} {guide.kind === "point" ? "连成一段怎么说" : "总结"}</h3><p>{guide.summary}</p>{guide.kind === "point" && <small>复述参考句 · 依据资料整理，非逐字引文</small>}</div>
+    {guide.trap && <aside className="micro-trap"><h3>容易背错的地方</h3><p>{guide.trap}</p></aside>}
+    {guide.example && <aside className="micro-example"><h3>帮助理解的例子</h3><p>{guide.example}</p><small>例子用于理解，不当作课件逐字答案。</small></aside>}
     <div className="study-guide-recall"><span>怎么背</span><p>{guide.recall}</p></div>
+    {guide.quizzes && <div className="micro-quizzes"><h3>闭卷自测 · 先答，再点开核对</h3>{guide.quizzes.map((quiz, index) => <details key={quiz.question}><summary><span>{index + 1}</span>{quiz.question}</summary><p>{quiz.answer}</p></details>)}</div>}
+    {guide.sourceNote && <p className="micro-source">依据：{guide.sourceNote}。细分解释、口诀、提醒及复述句为学习整理；上方保留资料原句。</p>}
   </section>;
 }
 
@@ -346,7 +368,7 @@ function App() {
     <div className={`app ${fullscreen ? "is-fullscreen" : ""}`}>
       <header className="topbar">
         <div className="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div className="brand-copy"><div className="eyebrow">2027 · 688 设计理论（一）</div><h1>设计艺术学研究方法</h1><p>七段主线 · 十二枝考点 · {totalDetailPoints} 条细分背诵点</p></div>
+        <div className="brand-copy"><div className="eyebrow">2027 · 688 设计理论（一）</div><h1>设计艺术学研究方法</h1><p>七段主线 · 十二专题 · {totalDetailPoints} 个小点 → {totalMicroPoints} 个背诵细点</p></div>
         <div className="topbar-right"><span className="source-badge">依据原 PDF 与 Obsidian 笔记</span><span className="progress-badge">已背 {studied.size} / 12</span></div>
       </header>
 
@@ -423,7 +445,7 @@ function App() {
           <div className="detail-top"><span className="detail-eyebrow">考点 {selected.id} / 12</span><span className="priority">★★★ 明确重点</span></div>
           {studyGuide ? <div className="context-navigation"><span>{selected.label} · 小标题背诵</span><button onClick={() => setPanelSelection(null)}>本章完整卡 ↗</button></div> : <><div className="detail-number" style={{ background: colors[selected.branchIndex] }}>{selected.id}</div><p className="detail-parent">{selected.branchLabel} · {branches[selected.branchIndex].question}</p><h2>{selected.fullTitle}</h2></>}
           <div className="detail-actions"><button className={`study-toggle ${studyMode ? "on" : ""}`} onClick={() => setStudyMode((current) => !current)} aria-pressed={studyMode}>{studyMode ? "退出背诵模式" : "进入背诵模式"}</button><button className={studied.has(selected.id) ? "done" : ""} onClick={() => toggleStudied(selected.id)}>{studied.has(selected.id) ? "✓ 已背" : "标记已背"}</button></div>
-          {studyMode && !visibleAnswer ? <div className="answer-cover"><span>闭卷回忆</span><h3>{studyGuide ? `你能复述“${studyGuide.title}”的各项内容吗？` : "你能说出这枝的关键词和答题路线吗？"}</h3><p>先试着口述，再揭示答案。</p><button onClick={() => setRevealed((current) => new Set([...current, selected.id]))}>揭示答案</button></div> : studyGuide ? <StudyGuide guide={studyGuide} /> : <>
+          {studyMode && !visibleAnswer ? <div className="answer-cover"><span>闭卷回忆</span><h3>{studyGuide ? `你能复述“${studyGuide.title}”的各项内容吗？` : "你能说出这枝的关键词和答题路线吗？"}</h3><p>先试着口述，再揭示答案。</p><button onClick={() => setRevealed((current) => new Set([...current, selected.id]))}>揭示答案</button></div> : studyGuide ? <StudyGuide key={studyGuide.id || panelGroup.id} guide={studyGuide} /> : <>
             <section className="detail-section"><div className="section-label">关键词</div><div className="keyword-list">{selected.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></section>
             <section className="detail-section"><div className="section-label">回忆路线</div><p className="route-text">{selected.route}</p></section>
             <section className="detail-section tip-section"><div className="section-label">答题提醒</div><p>{selected.tip}</p></section>

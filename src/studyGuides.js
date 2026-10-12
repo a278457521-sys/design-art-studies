@@ -1,36 +1,53 @@
-// 分组与原有背诵卡共用正文；学习顺序、自测提示属于复习整理。
-// 定性资料收集的展开解释依据 Obsidian《05 定性研究》“定性资料收集与编码”。
-const collectionGuide = {
-  title: "定性资料的收集",
-  route: "定义 → 来源 → 作用",
-  leadLabel: "定义",
-  lead: "访谈记录、观察文字、速记符号、图片、录音录像，以及文献资源和相关实物。",
-  cards: [
-    { title: "实地访谈", cue: "交互式交流", text: "通过交流获取资料。" },
-    { title: "观察所得", cue: "两种观察", text: "参与型、非参与型。" },
-    { title: "文献资源", cue: "查阅与释解", text: "关键词、标题、作者。" },
-    { title: "实物器具", cue: "物质资料", text: "历史文物、民间器具与玩具等实物。" },
-  ],
-  summary: "丰富资料、深入认识，为后续研究提供依据。",
-  recall: "先说定义，再背“访—观—文—物”，最后说明资料的作用。",
+import { pointCardsByTopic } from "./pointCards.js";
+
+const sourceChapters = {
+  "01": "01 研究方法导论", "02": "02 理论与研究", "03": "02 理论与研究 · 文献研究",
+  "04": "02 理论与研究 · 研究设计", "05": "05 定性研究 / 06 定量研究",
+  "06": "07 历史性研究", "07": "08 实验性研究", "08": "09 调查研究",
+  "09": "10 田野考察法", "10": "11 相关性研究 / 12 逻辑论证法",
+  "11": "13 个案与综合研究法", "12": "14 研究生论文写作",
 };
 
 export function getStudyGuide(group, itemId = null) {
   if (!group) return null;
   const item = group.items.find((entry) => entry.id === itemId);
-  if (item?.id === "item-05-2-0") return collectionGuide;
+  if (itemId && !item) throw new Error(`Unknown study-guide selection: ${itemId}`);
+  if (item) {
+    const [, topicId, groupIndex, itemIndex] = item.id.split("-");
+    const point = pointCardsByTopic[topicId]?.[Number(groupIndex)]?.[Number(itemIndex)];
+    if (!point) throw new Error(`Missing point breakdown: ${item.id}`);
+    const { cards, hook, trap, example } = point;
+    const route = cards.map((card) => card.title).join(" → ");
+    const paragraph = cards.map((card) => card.text).join("");
+    const summary = paragraph.startsWith(item.label) ? paragraph : `${item.label}：${paragraph}`;
+    return {
+      kind: "point", id: item.id, title: item.label, route, hook, cards, trap, example,
+      leadLabel: "资料原句", lead: item.detail, sourceText: item.detail,
+      sourceNote: `《设计艺术学研究方法总复习导图》 · ${sourceChapters[topicId]}${topicId === "05" && Number(groupIndex) <= 3 ? "；补查《05 定性研究》章节笔记" : ""}`,
+      summary,
+      recall: `用“${hook}”提取要点，再把“${route}”各讲一句；最后不看提示完整复述。`,
+      rounds: [
+        { title: "第一轮 · 记骨架", text: `先只记 ${cards.length} 个细点：${route}。抓手：${hook}。` },
+        { title: "第二轮 · 讲清楚", text: `依次解释“${cards.map((card) => card.title).join("”“")}”，每点至少说出一句含义。特别注意：${trap}` },
+        { title: "第三轮 · 连成答题句", text: `给自己30秒，围绕“${item.label}”按这 ${cards.length} 个细点口述；再展开下面的自测核对。不要只说口诀。` },
+      ],
+      quizzes: [
+        ...cards.map((card) => ({ question: `“${item.label}”中的“${card.title}”要说明什么？`, answer: card.text })),
+        { question: `复述“${item.label}”时，应避免什么混淆或遗漏？`, answer: trap },
+      ],
+    };
+  }
   const labels = group.items.map((entry) => entry.label);
   return {
-    title: item?.label || group.label,
+    kind: "group", title: group.label,
     route: group.cue,
-    leadLabel: item ? "核心背诵句" : "背诵抓手",
-    lead: item?.detail || `先记“${group.cue}”，再依次复述下面 ${group.items.length} 个小点。`,
+    leadLabel: "背诵抓手",
+    lead: `先记“${group.cue}”，再依次复述下面 ${group.items.length} 个小点。点击导图的小点可查看专属细分解释。`,
     cards: group.items.map((entry) => ({
       title: entry.label,
       text: entry.detail,
-      selected: entry.id === itemId,
     })),
-    summary: item ? `先解释“${item.label}”，再补充原句中的条件、作用或例子。` : `按顺序串起：${labels.join(" → ")}。`,
-    recall: item ? "遮住答案，用自己的话复述核心句，再对照资料检查遗漏。" : `闭卷自测：能否说全 ${group.items.length} 个小点，并逐个解释？`,
+    summary: `按顺序串起：${labels.join(" → ")}。`,
+    recall: `闭卷自测：能否说全 ${group.items.length} 个小点，并逐个解释？`,
   };
 }
