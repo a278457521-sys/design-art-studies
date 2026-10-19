@@ -1,4 +1,5 @@
 import { pointCardsByTopic } from "./pointCards.js";
+import { learningAidsById } from "./learningAids.js";
 
 const sourceChapters = {
   "01": "01 研究方法导论", "02": "02 理论与研究", "03": "02 理论与研究 · 文献研究",
@@ -16,22 +17,26 @@ export function getStudyGuide(group, itemId = null) {
     const [, topicId, groupIndex, itemIndex] = item.id.split("-");
     const point = pointCardsByTopic[topicId]?.[Number(groupIndex)]?.[Number(itemIndex)];
     if (!point) throw new Error(`Missing point breakdown: ${item.id}`);
-    const { cards, hook, trap, example } = point;
+    const { cards, hook, trap, example: extraExample } = point;
+    const learningAid = learningAidsById[item.id];
+    if (!learningAid) throw new Error(`Missing learning aid: ${item.id}`);
+    const example = `情境举例：${learningAid.scene}\n概念对应：${learningAid.mapping}\n联想记忆：${learningAid.association}`;
     const route = cards.map((card) => card.title).join(" → ");
     const paragraph = cards.map((card) => card.text).join("");
     const summary = paragraph.startsWith(item.label) ? paragraph : `${item.label}：${paragraph}`;
     return {
-      kind: "point", id: item.id, title: item.label, route, hook, cards, trap, example,
+      kind: "point", id: item.id, title: item.label, route, hook, cards, trap, example, extraExample, learningAid,
       leadLabel: "资料原句", lead: item.detail, sourceText: item.detail,
-      sourceNote: `《设计艺术学研究方法总复习导图》 · ${sourceChapters[topicId]}${topicId === "05" && Number(groupIndex) <= 3 ? "；补查《05 定性研究》章节笔记" : ""}`,
+      sourceNote: `《设计艺术学研究方法总复习导图》 · ${sourceChapters[topicId]}${topicId === "05" && Number(groupIndex) <= 3 ? "；补查《05 定性研究》章节笔记" : ""}${item.id === "item-12-0-2" ? "；类型辨析补查《14 研究生论文写作》章节笔记" : ""}`,
       summary,
       recall: `用“${hook}”提取要点，再把“${route}”各讲一句；最后不看提示完整复述。`,
       rounds: [
-        { title: "第一轮 · 记骨架", text: `先只记 ${cards.length} 个细点：${route}。抓手：${hook}。` },
-        { title: "第二轮 · 讲清楚", text: `依次解释“${cards.map((card) => card.title).join("”“")}”，每点至少说出一句含义。特别注意：${trap}` },
-        { title: "第三轮 · 连成答题句", text: `给自己30秒，围绕“${item.label}”按这 ${cards.length} 个细点口述；再展开下面的自测核对。不要只说口诀。` },
+        { title: "第一轮 · 记骨架", text: `先记 ${cards.length} 个细点：${route}。联想提取：${learningAid.association}。再用“${hook}”还原要点。` },
+        { title: "第二轮 · 讲清楚", text: `用上面的情境解释“${item.label}”：${learningAid.mapping} 再逐点说明“${cards.map((card) => card.title).join("”“")}”。特别注意：${trap}` },
+        { title: "第三轮 · 连成答题句", text: `给自己30秒，不看提示，把“${item.label}”的 ${cards.length} 个细点连成正式答题句。再用应用自测检验理解；例子和联想不能代替定义。` },
       ],
       quizzes: [
+        { kind: "application", question: `应用自测：上面的情境怎样体现“${item.label}”？`, answer: learningAid.mapping },
         ...cards.map((card) => ({ question: `“${item.label}”中的“${card.title}”要说明什么？`, answer: card.text })),
         { question: `复述“${item.label}”时，应避免什么混淆或遗漏？`, answer: trap },
       ],

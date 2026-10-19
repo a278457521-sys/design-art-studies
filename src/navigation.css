@@ -15,6 +15,11 @@
 .micro-trap,.micro-example{border:1px solid #594c37;background:#2c2821;border-radius:10px;padding:13px 12px;margin-top:14px}
 .micro-trap h3{color:#e2c38e}.micro-trap p,.micro-example p{font-size:12px;line-height:1.9;margin:0;color:#c9bdab}
 .micro-example{background:#222d28;border-color:#3c574b}.micro-example h3{color:#a7cbb7}.micro-example p{color:#b6c9bf}
+.learning-aid-part{padding:11px 0;border-top:1px solid #3c5147}.learning-aid-part span{display:block;color:#c4ddce;font-size:11px;font-weight:700;line-height:1.7;margin-bottom:5px}
+.learning-aid-part.association{background:#293b32;border-radius:7px;border-top:0;padding:10px;margin:2px 0 10px}.learning-aid-part.association p{color:#d2e5d8}
+.micro-example>small{display:block;margin-top:9px;color:#a6bcaf}.extra-example{margin-top:12px;border-top:1px solid #3c5147;padding-top:10px}
+.extra-example summary{cursor:pointer;color:#c2dfcd;font-size:12px;line-height:1.8;min-height:32px}.extra-example p{margin-top:8px}
+.extra-example summary:focus-visible{outline:2px solid #9fd4f3;outline-offset:3px}
 .micro-quizzes{margin-top:18px}.micro-quizzes h3{color:#a8cfe6}.micro-quizzes details{border:1px solid #374653;border-radius:9px;margin:8px 0;overflow:hidden;background:#202830}
 .micro-quizzes summary{cursor:pointer;list-style:none;display:flex;gap:8px;padding:12px 10px;font-size:11px;line-height:1.8;color:#cadce9}
 .micro-quizzes summary::after{content:'＋';flex-shrink:0;margin-left:auto;color:#92bcd6}.micro-quizzes details[open] summary::after{content:'−'}

@@ -87,13 +87,15 @@ function toMarkmap() {
           const guide = getStudyGuide(focusGroup, focusGroup.items[itemIndex].id);
           out.push(`    - ${escape(bullet)}`, `      - 记忆抓手：${escape(guide.hook)}`);
           guide.cards.forEach((card) => out.push(`      - ${escape(card.title)}：${escape(card.text)}`));
+          out.push(`      - 情境举例（辅助编写）：${escape(guide.learningAid.scene)}`, `      - 概念对应：${escape(guide.learningAid.mapping)}`, `      - 联想记忆：${escape(guide.learningAid.association)}`, `      - 应用自测：这个情境怎样体现“${escape(guide.title)}”？先口述，再核对概念对应。`);
+          if (guide.extraExample) out.push(`      - 补充理解：${escape(guide.extraExample)}`);
           out.push(`      - 易错提醒：${escape(guide.trap)}`);
         });
       });
     });
     out.push("");
   });
-  out.push("## 资料来源", "- 学习整理说明：保留的资料原句之外，细分解释、记忆抓手和易错提醒为学习整理，非课件逐字引文；口诀需还原成完整解释。", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
+  out.push("## 资料来源", "- 学习整理说明：细分解释、记忆抓手、易错提醒、举例和联想为学习辅助，非课件逐字引文；新情境均为假设，不代表真实项目或实验结果；联想不能代替定义。", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
   return out.join("\n");
 }
 
@@ -122,6 +124,14 @@ function StudyGuide({ guide }) {
       <h3>{number(index + 2)} {card.title}{card.selected && <span>当前小点</span>}</h3>
       {card.cue && <strong>{card.cue}</strong>}<p>{card.text}</p>
     </article>)}</div>
+    {guide.learningAid && <aside className="micro-example" aria-label="对应举例与联想记忆">
+      <h3>用例子理解，再联想记忆</h3>
+      <div className="learning-aid-part"><span>01 · 情境举例</span><p>{guide.learningAid.scene}</p></div>
+      <div className="learning-aid-part"><span>02 · 为什么对应这个知识点</span><p>{guide.learningAid.mapping}</p></div>
+      <div className="learning-aid-part association"><span>03 · 联想记忆</span><p>{guide.learningAid.association}</p></div>
+      <small>假设学习情境，不是真实研究结果。联想帮你提取要点，不能代替正式定义。</small>
+      {guide.extraExample && <details className="extra-example"><summary>再看一个补充例子</summary><p>{guide.extraExample}</p></details>}
+    </aside>}
     {guide.rounds && <div className="micro-rounds">
       <h3>三轮背法 · 按自己的熟练程度切换</h3>
       <div className="round-buttons" role="group" aria-label="选择背诵轮次">{guide.rounds.map((entry, index) => <button key={entry.title} aria-label={entry.title} aria-pressed={round === index} onClick={() => setRound(index)}>{["① 记骨架", "② 讲清楚", "③ 连成句"][index]}</button>)}</div>
@@ -130,7 +140,6 @@ function StudyGuide({ guide }) {
     <div className="study-guide-arrow" aria-hidden="true">↓</div>
     <div className="study-guide-summary"><h3>{number(guide.cards.length + 2)} {guide.kind === "point" ? "连成一段怎么说" : "总结"}</h3><p>{guide.summary}</p>{guide.kind === "point" && <small>复述参考句 · 依据资料整理，非逐字引文</small>}</div>
     {guide.trap && <aside className="micro-trap"><h3>容易背错的地方</h3><p>{guide.trap}</p></aside>}
-    {guide.example && <aside className="micro-example"><h3>帮助理解的例子</h3><p>{guide.example}</p><small>例子用于理解，不当作课件逐字答案。</small></aside>}
     <div className="study-guide-recall"><span>怎么背</span><p>{guide.recall}</p></div>
     {guide.quizzes && <div className="micro-quizzes"><h3>闭卷自测 · 先答，再点开核对</h3>{guide.quizzes.map((quiz, index) => <details key={quiz.question}><summary><span>{index + 1}</span>{quiz.question}</summary><p>{quiz.answer}</p></details>)}</div>}
     {guide.sourceNote && <p className="micro-source">依据：{guide.sourceNote}。细分解释、口诀、提醒及复述句为学习整理；上方保留资料原句。</p>}

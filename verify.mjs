@@ -5,6 +5,7 @@ import { detailGroupsById, totalDetailPoints } from "./src/details.js";
 import { getFocusGroups } from "./src/focusMap.js";
 import { getStudyGuide } from "./src/studyGuides.js";
 import { pointCardsByTopic, totalMicroPoints } from "./src/pointCards.js";
+import { learningAidsById } from "./src/learningAids.js";
 
 const vault = "D:\\桌面\\设计学仓库\\设计艺术学研究";
 const checkLocalNotes = !process.argv.includes("--portable");
@@ -12,6 +13,7 @@ const numbers = topics.map((topic) => topic.id);
 const expected = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
 let studyGuideCount = 0;
 let microPointCount = 0;
+const checkedAidIds = new Set();
 if (branches.length !== 7) throw new Error(`Expected seven branches, got ${branches.length}`);
 if (numbers.join(",") !== expected.join(",")) throw new Error(`Wrong topic order: ${numbers.join(",")}`);
 for (const topic of topics) {
@@ -33,6 +35,9 @@ for (const topic of topics) {
       if (item) {
         if (guide.kind !== "point" || guide.sourceText !== item.detail || !guide.hook || !guide.trap || guide.rounds.length !== 3 || guide.quizzes.length < 2) throw new Error(`Incomplete micro guide: ${item.id}`);
         microPointCount += guide.cards.length;
+        const aid = guide.learningAid;
+        if (!aid || aid.kind !== "illustrative" || !aid.scene.startsWith("假设：") || !aid.mapping || !aid.association || !guide.quizzes.some((quiz) => quiz.kind === "application" && quiz.answer === aid.mapping)) throw new Error(`Incomplete learning aid: ${item.id}`);
+        checkedAidIds.add(item.id);
       }
       studyGuideCount++;
     }
@@ -42,6 +47,7 @@ for (const topic of topics) {
   }
 }
 if (totalDetailPoints < 200) throw new Error(`Expected at least 200 detail points, got ${totalDetailPoints}`);
+if (checkedAidIds.size !== totalDetailPoints || Object.keys(learningAidsById).length !== checkedAidIds.size || Object.keys(learningAidsById).some((id) => !checkedAidIds.has(id))) throw new Error("Learning aids do not match the original points");
 if (microPointCount !== totalMicroPoints || microPointCount < 500) throw new Error(`Lost micro points: ${microPointCount}/${totalMicroPoints}`);
 if (checkLocalNotes && !existsSync(join(vault, "设计艺术学/设计艺术学研究方法总复习导图.md"))) throw new Error("Missing detailed Obsidian source");
 for (const asset of ["index.html", "app.js", "设计艺术学研究方法-交互导图.html"]) {
@@ -55,4 +61,4 @@ const documentMarkup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").r
 if (/<(?:script|link|img|iframe|audio|video)\b[^>]*\b(?:src|href)\s*=\s*["']https?:\/\//i.test(documentMarkup)) throw new Error("Offline page references a remote resource");
 if (/@import\s+["']?https?:\/\/|url\(\s*["']?https?:\/\//i.test(html)) throw new Error("Offline stylesheet references a remote resource");
 if (!html.includes("<style>") || !html.includes("<script>")) throw new Error("Offline HTML does not embed its assets");
-console.log(`Verified: seven branches, twelve ordered topics and focus maps, ${totalDetailPoints} reachable points, ${microPointCount} micro points, ${studyGuideCount} study-guide selections, ${checkLocalNotes ? "local note targets, " : ""}offline assets.`);
+console.log(`Verified: seven branches, twelve ordered topics and focus maps, ${totalDetailPoints} reachable points, ${microPointCount} micro points, ${checkedAidIds.size} scenario/mapping/association sets and application quizzes, ${studyGuideCount} study-guide selections, ${checkLocalNotes ? "local note targets, " : ""}offline assets.`);
