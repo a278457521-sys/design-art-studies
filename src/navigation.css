@@ -89,3 +89,16 @@
   .micro-trap p,.micro-example p,.micro-quizzes details p{font-size:13px}
   .is-fullscreen .has-study-guide .map-column{right:0}
 }
+.source-case-study{margin:18px 0;padding:16px;border:1px solid #51798b;border-radius:12px;background:#21333e;min-width:0;overflow-wrap:anywhere}
+.source-case-study h3{margin:0 0 10px;color:#d8eef8}
+.source-case-study h4{margin:15px 0 7px;font-size:14px;color:#a7d8e8}
+.source-case-study h5{margin:12px 0 5px;font-size:13px;color:#e0eaf0}
+.source-case-study p,.source-case-study li{font-size:13px;line-height:1.85;margin:7px 0;color:#d1dce4;white-space:pre-line}
+.source-case-study a{color:#9bd5ef;overflow-wrap:anywhere}
+.source-case-recall{padding:2px 12px 9px;border-left:3px solid #85bfac;background:#293f46}
+.source-case-details,.source-case-quizzes details,.hypothetical-practice{margin-top:12px;border:1px solid #526571;border-radius:8px;min-width:0}
+.source-case-study summary,.hypothetical-practice>summary{cursor:pointer;min-height:44px;padding:12px;color:#d5e9f2;font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.source-case-study summary:focus-visible,.hypothetical-practice>summary:focus-visible{outline:3px solid #9bd5ef;outline-offset:3px;border-radius:6px}
+.source-case-details>section,.source-case-quizzes details>p{padding:0 12px 10px}
+.source-case-study ul{padding-left:20px}
+.hypothetical-practice .micro-example{margin:0;border:0}

@@ -5,6 +5,8 @@ import { detailGroupsById, totalDetailPoints } from "./details.js";
 import { getFocusGroups, buildFocusLayout } from "./focusMap.js";
 import { getStudyGuide } from "./studyGuides.js";
 import { totalMicroPoints } from "./pointCards.js";
+import SourceCaseStudy from "./SourceCaseStudy.jsx";
+import { sourceCaseToMarkdown } from "./sourceCaseMarkdown.js";
 
 const PALETTES = {
   "原稿配色": ["#2B7AA6", "#3B817A", "#9A7131", "#87619D", "#4F719F", "#A26169", "#4E8C74"],
@@ -87,6 +89,7 @@ function toMarkmap() {
           const guide = getStudyGuide(focusGroup, focusGroup.items[itemIndex].id);
           out.push(`    - ${escape(bullet)}`, `      - 记忆抓手：${escape(guide.hook)}`);
           guide.cards.forEach((card) => out.push(`      - ${escape(card.title)}：${escape(card.text)}`));
+          out.push(...sourceCaseToMarkdown(guide.caseStudy).map(line => `      ${line}`));
           out.push(`      - 情境举例（辅助编写）：${escape(guide.learningAid.scene)}`, `      - 概念对应：${escape(guide.learningAid.mapping)}`, `      - 联想记忆：${escape(guide.learningAid.association)}`, `      - 应用自测：这个情境怎样体现“${escape(guide.title)}”？先口述，再核对概念对应。`);
           if (guide.extraExample) out.push(`      - 补充理解：${escape(guide.extraExample)}`);
           out.push(`      - 易错提醒：${escape(guide.trap)}`);
@@ -95,7 +98,7 @@ function toMarkmap() {
     });
     out.push("");
   });
-  out.push("## 资料来源", "- 学习整理说明：细分解释、记忆抓手、易错提醒、举例和联想为学习辅助，非课件逐字引文；新情境均为假设，不代表真实项目或实验结果；联想不能代替定义。", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
+  out.push("## 资料来源", "- 学习整理说明：来源案例的资料记载附有出处、核验状态与范围；逐点讲解、教学推演与联想为学习辅助，不代表真实研究结果。原有情境举例为假设练习；联想不能代替定义。", "- 原 PDF：《设计艺术学研究方法》总背诵框架思维导图（阅读版）", `- Obsidian：${CORE_NOTE}`, `- Obsidian：${REVIEW_NOTE}`, `- Obsidian：${EXAM_NOTE}`, "");
   return out.join("\n");
 }
 
@@ -106,6 +109,18 @@ function readProgress() {
   } catch {
     return { studied: [], palette: "原稿配色", vaultName: VAULT_NAME };
   }
+}
+
+function HypotheticalPractice({ guide }) {
+  const content = <aside className="micro-example" aria-label="对应举例与联想记忆">
+    <h3>用例子理解，再联想记忆</h3>
+    <div className="learning-aid-part"><span>01 · 情境举例</span><p>{guide.learningAid.scene}</p></div>
+    <div className="learning-aid-part"><span>02 · 为什么对应这个知识点</span><p>{guide.learningAid.mapping}</p></div>
+    <div className="learning-aid-part association"><span>03 · 联想记忆</span><p>{guide.learningAid.association}</p></div>
+    <small>假设学习情境，不是真实研究结果。联想帮你提取要点，不能代替正式定义。</small>
+    {guide.extraExample && <details className="extra-example"><summary>再看一个补充例子</summary><p>{guide.extraExample}</p></details>}
+  </aside>;
+  return guide.caseStudy ? <details className="hypothetical-practice"><summary>再看一个假设练习</summary>{content}</details> : content;
 }
 
 function StudyGuide({ guide }) {
@@ -124,14 +139,8 @@ function StudyGuide({ guide }) {
       <h3>{number(index + 2)} {card.title}{card.selected && <span>当前小点</span>}</h3>
       {card.cue && <strong>{card.cue}</strong>}<p>{card.text}</p>
     </article>)}</div>
-    {guide.learningAid && <aside className="micro-example" aria-label="对应举例与联想记忆">
-      <h3>用例子理解，再联想记忆</h3>
-      <div className="learning-aid-part"><span>01 · 情境举例</span><p>{guide.learningAid.scene}</p></div>
-      <div className="learning-aid-part"><span>02 · 为什么对应这个知识点</span><p>{guide.learningAid.mapping}</p></div>
-      <div className="learning-aid-part association"><span>03 · 联想记忆</span><p>{guide.learningAid.association}</p></div>
-      <small>假设学习情境，不是真实研究结果。联想帮你提取要点，不能代替正式定义。</small>
-      {guide.extraExample && <details className="extra-example"><summary>再看一个补充例子</summary><p>{guide.extraExample}</p></details>}
-    </aside>}
+    <SourceCaseStudy study={guide.caseStudy} />
+    {guide.learningAid && <HypotheticalPractice guide={guide} />}
     {guide.rounds && <div className="micro-rounds">
       <h3>三轮背法 · 按自己的熟练程度切换</h3>
       <div className="round-buttons" role="group" aria-label="选择背诵轮次">{guide.rounds.map((entry, index) => <button key={entry.title} aria-label={entry.title} aria-pressed={round === index} onClick={() => setRound(index)}>{["① 记骨架", "② 讲清楚", "③ 连成句"][index]}</button>)}</div>

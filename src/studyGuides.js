@@ -1,5 +1,6 @@
 import { pointCardsByTopic } from "./pointCards.js";
 import { learningAidsById } from "./learningAids.js";
+import { getSourceCaseStudy } from "./sourceCases.js";
 
 const sourceChapters = {
   "01": "01 研究方法导论", "02": "02 理论与研究", "03": "02 理论与研究 · 文献研究",
@@ -26,6 +27,7 @@ export function getStudyGuide(group, itemId = null) {
     const summary = paragraph.startsWith(item.label) ? paragraph : `${item.label}：${paragraph}`;
     return {
       kind: "point", id: item.id, title: item.label, route, hook, cards, trap, example, extraExample, learningAid,
+      caseStudy: getSourceCaseStudy(item.id),
       leadLabel: "资料原句", lead: item.detail, sourceText: item.detail,
       sourceNote: `《设计艺术学研究方法总复习导图》 · ${sourceChapters[topicId]}${topicId === "05" && Number(groupIndex) <= 3 ? "；补查《05 定性研究》章节笔记" : ""}${item.id === "item-12-0-2" ? "；类型辨析补查《14 研究生论文写作》章节笔记" : ""}`,
       summary,
