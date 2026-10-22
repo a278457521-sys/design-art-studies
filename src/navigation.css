@@ -95,6 +95,8 @@
 .source-case-study h5{margin:12px 0 5px;font-size:13px;color:#e0eaf0}
 .source-case-study p,.source-case-study li{font-size:13px;line-height:1.85;margin:7px 0;color:#d1dce4;white-space:pre-line}
 .source-case-study a{color:#9bd5ef;overflow-wrap:anywhere}
+.source-case-provenance{padding:6px 10px;margin:10px 0;border:1px solid #526571;border-radius:7px;background:#283943}
+.source-case-provenance p{font-size:12px;margin:3px 0;color:#c6dce8}
 .source-case-recall{padding:2px 12px 9px;border-left:3px solid #85bfac;background:#293f46}
 .source-case-details,.source-case-quizzes details,.hypothetical-practice{margin-top:12px;border:1px solid #526571;border-radius:8px;min-width:0}
 .source-case-study summary,.hypothetical-practice>summary{cursor:pointer;min-height:44px;padding:12px;color:#d5e9f2;font-size:13px;line-height:1.65;overflow-wrap:anywhere}

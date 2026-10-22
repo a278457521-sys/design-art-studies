@@ -16,6 +16,11 @@ test('case component exists and renders separated, escaped, default-closed conte
   assert.equal((html.match(/<details/g)||[]).length,2); assert.ok(!/<details[^>]*\bopen/.test(html));
   assert.ok(!/<summary[^>]*>[^]*?独立答案[^]*?<\/summary>/.test(html));
   assert.ok(html.includes('rel="noopener noreferrer"')); assert.ok(!html.includes(' id='));
+  const visibleHeader=html.slice(0,html.indexOf('<details'));
+  assert.ok(visibleHeader.includes(fixture.source.label));assert.ok(visibleHeader.includes(fixture.source.status));
+  assert.ok(!visibleHeader.includes(fixture.source.scope));assert.ok(!visibleHeader.includes('事实 &lt;b&gt;'));
+  const noLinks=renderToStaticMarkup(React.createElement(mod.exports.default,{study:{...fixture,source:{...fixture.source,links:[]}}}));
+  assert.ok(noLinks.includes('来源为上方案例库条目，尚无独立核验的公开一手链接。'));assert.ok(!noLinks.includes('<ul></ul>'));
   assert.equal(renderToStaticMarkup(React.createElement(mod.exports.default,{study:null})), '');
 });
 test('markdown preserves each field, safely escapes text and includes quiz answers',async()=>{
