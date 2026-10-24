@@ -29,6 +29,11 @@ test('main surfaces consume semantic tokens and focus remains visible', () => {
   }
   assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*3px solid var\(--focus\)/);
 });
+test('search placeholder explicitly uses opaque accessible muted text', () => {
+  const rule = css.match(/\.search-wrap input::placeholder\s*\{([^}]+)\}/)?.[1] || '';
+  assert.match(rule, /color:\s*var\(--text-muted\)/);
+  assert.match(rule, /opacity:\s*1(?:;|$)/);
+});
 test('reading body rules remain at least 15px and offline CSS retains navigation safeguards', () => {
   for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (/\.(?:study-guide-card p|study-guide-lead p|study-guide-summary p|study-guide-recall p|round-content|micro-trap p|micro-example p|micro-quizzes details p|source-case-study p|source-case-study li|detail-section p|deep-list li|focus-detail p)/.test(match[1])) {
