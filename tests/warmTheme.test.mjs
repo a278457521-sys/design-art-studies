@@ -34,6 +34,12 @@ test('search placeholder explicitly uses opaque accessible muted text', () => {
   assert.match(rule, /color:\s*var\(--text-muted\)/);
   assert.match(rule, /opacity:\s*1(?:;|$)/);
 });
+test('zoom and search-clear controls have at least 44px touch width', () => {
+  for (const selector of ['.tool-cluster button', '.search-wrap button']) {
+    const rule = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].find((m) => m[1].trim().split(',').map((s) => s.trim()).includes(selector) && /min-width:\s*44px/.test(m[2]));
+    assert.ok(rule, `${selector} needs min-width:44px`);
+  }
+});
 test('reading body rules remain at least 15px and offline CSS retains navigation safeguards', () => {
   for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (/\.(?:study-guide-card p|study-guide-lead p|study-guide-summary p|study-guide-recall p|round-content|micro-trap p|micro-example p|micro-quizzes details p|source-case-study p|source-case-study li|detail-section p|deep-list li|focus-detail p)/.test(match[1])) {
