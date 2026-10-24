@@ -40,6 +40,11 @@ test('zoom and search-clear controls have at least 44px touch width', () => {
     assert.ok(rule, `${selector} needs min-width:44px`);
   }
 });
+test('document roots can shrink to scrollbar-reduced viewport width', () => {
+  const rule = css.match(/html,body,#root\s*\{([^}]+)\}/)?.[1] || '';
+  assert.match(rule, /min-width:\s*0(?:;|$)/);
+  assert.doesNotMatch(rule, /min-width:\s*320px|overflow-x:\s*hidden/);
+});
 test('reading body rules remain at least 15px and offline CSS retains navigation safeguards', () => {
   for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (/\.(?:study-guide-card p|study-guide-lead p|study-guide-summary p|study-guide-recall p|round-content|micro-trap p|micro-example p|micro-quizzes details p|source-case-study p|source-case-study li|detail-section p|deep-list li|focus-detail p)/.test(match[1])) {
